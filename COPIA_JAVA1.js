@@ -91,16 +91,24 @@ function displayAverages(data, data1) {
         const latestFeed = data.feeds[data.feeds.length - 1];
         const latestFeed1 = data1.feeds[data1.feeds.length - 1];
 
-        // Calcular los promedios
-        const v1 = (latestFeed.field1 + latestFeed1.field4)/2;
-        const v2 = (latestFeed.field2 + latestFeed1.field5)/2;
-        const v3 = (latestFeed.field3 + latestFeed1.field6)/2;
+        const valor1 = parseFloat(latestFeed.field1);
+        const valor2 = parseFloat(latestFeed1.field4);
+        const valor3 = parseFloat(latestFeed.field2);
+        const valor4 = parseFloat(latestFeed1.field5);
+        const valor5 = parseFloat(latestFeed.field3);
+        const valor6 = parseFloat(latestFeed1.field6);
+
+        // Ahora suma los valores numéricos
+        const suma1 = (valor1 + valor2)/2;
+        const suma2 = (valor3 + valor4)/2;
+        const suma3 = (valor5 + valor6)/2;
+
 
         // Formatear la fecha y hora
         const utcTime = new Date(latestFeed.created_at);
         const options = { timeZone: 'America/Mexico_City' };
         const localTimeString = utcTime.toLocaleString('es-MX', options);
-        html3 += `<p>Fecha y Hora: ${localTimeString}, Promedio de Temperatura: ${v1} °C, Promedio de Humedad: ${v2}%, Promedio de Niveles de CO2: ${v3} PPM</p>`;
+        html3 += `<p>Fecha y Hora: ${localTimeString}, Temperatura: ${suma1} °C, Humedad: ${suma2}%, Niveles de CO2: ${suma3} PPM</p>`;
 
     } else {
         html3 += '<p>No hay datos disponibles para el Sensor Virtual.</p>';

@@ -12,6 +12,7 @@ var url2 = `https://api.thingspeak.com/channels/${channelID2}/feeds.json?api_key
 
 var myChart;
 var myChart2;
+var myChart3;
 let sensor1Data; 
 
 // Función para cargar y mostrar los datos
@@ -19,10 +20,12 @@ function fetchData1() {
     fetch(url)
         .then(response1 => response1.json())
         .then(data1 => {
+            fetchData();
             sensor1Data=data1
             displayData1(sensor1Data);
             createOrUpdateChart1(sensor1Data);
-            fetchData();
+            
+            
         })
         .catch(error1 => {
             console1.error(error1);
@@ -36,12 +39,12 @@ function fetchData() {
             displayData(data);
             createOrUpdateChart(data);
             displayAverages(sensor1Data, data);
+            createOrUpdateChart3(sensor1Data, data);
         })
         .catch(error => {
             console.error(error);
         });
 }
-
 
 function displayData(data) {
     var dataContainer1 = document.getElementById('data-container1');
@@ -249,6 +252,79 @@ function createOrUpdateChart1(data1) {
     }
 }
 
+function createOrUpdateChart3(data, data1) {
+    var ctx3 = document.getElementById('chart3').getContext('2d');
+
+    var labels = data.feeds.map(feed => {
+        const utcTime = new Date(feed.created_at);
+        const options = { timeZone: 'America/Mexico_City' };
+        const localTime = utcTime.toLocaleString('es-MX', options);
+        return localTime.toLocaleString('es-MX', options);
+    });
+
+    const latestFeed = data.feeds[data.feeds.length - 1];
+    const latestFeed1 = data1.feeds[data1.feeds.length - 1];
+
+    const valor1 = parseFloat(latestFeed.field1);
+    const valor2 = parseFloat(latestFeed1.field4);
+    const valor3 = parseFloat(latestFeed.field2);
+    const valor4 = parseFloat(latestFeed1.field5);
+    const valor5 = parseFloat(latestFeed.field3);
+    const valor6 = parseFloat(latestFeed1.field6);
+
+    // Ahora suma los valores numéricos
+    const suma1 = (valor1 + valor2) / 2;
+    const suma2 = (valor3 + valor4) / 2;
+    const suma3 = (valor5 + valor6) / 2;
+
+    let trimmedLabels = labels;
+    
+    if (labels.length > 20) {
+        trimmedLabels = labels.slice(labels.length - 20);
+    }
+    
+    if (!myChart3) {
+        myChart3 = new Chart(ctx3, {
+            type: 'line',
+            data: {
+                labels: trimmedLabels,
+                datasets: [
+                    {
+                        label: 'Temperatura (°C)',
+                        data: Array(20).fill(suma1),
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 2,
+                    },
+                    {
+                        label: 'Humedad (%)',
+                        data: Array(20).fill(suma2),
+                        borderColor: 'rgba(75, 192, 255, 1)',
+                        borderWidth: 2,
+                    },
+                    {
+                        label: 'Niveles de CO2 (PPM)',
+                        data: Array(20).fill(suma3),
+                        borderColor: 'rgba(54, 255, 54, 1)',
+                        borderWidth: 2,
+                    },
+                ],
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                    },
+                },
+            },
+        });
+    } else {
+        myChart3.data.labels = trimmedLabels;
+        myChart3.data.datasets[0].data = Array(20).fill(suma1);
+        myChart3.data.datasets[1].data = Array(20).fill(suma2);
+        myChart3.data.datasets[2].data = Array(20).fill(suma3);
+        myChart3.update();
+    }
+}
 
 function generateCSVContent(data) {
     let csvContent = "Fecha, Hora, Temperatura (°C), Humedad (%), CO2 (PPM)\n";
